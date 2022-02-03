@@ -3,13 +3,12 @@
 namespace Fintech\Simplify\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Fintech\Simplify\Repository\UserRepository;
 use Laminas\Hydrator\ClassMethodsHydrator;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="user")
- * @ORM\Entity(repositoryClass="UserRepository")
+ * @ORM\Table(name="users")
+ * @ORM\Entity(repositoryClass="Fintech\Simplify\Repository\UserRepository")
  */
 class User
 {
@@ -123,7 +122,7 @@ class User
      */
     public function getPassword(): string
     {
-        return $this->password;
+        return crypt($this->password);
     }
 
     /**

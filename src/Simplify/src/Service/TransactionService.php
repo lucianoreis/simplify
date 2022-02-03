@@ -21,25 +21,24 @@ class TransactionService
         $this->inputFilter = $inputFilter;
     }
 
-    public function transfer(array $parsedBody): JsonResponse
+    public function transfer(array $parsedBody)
     {
         $this->inputFilter->setData($parsedBody);
         if (!$this->inputFilter->isValid()) {
-            return new JsonResponse(
+            throw new \JsonException(json_encode(
                 [
                     "detail" => "Failed Validation",
                     "status" => 422,
                     "title" => "Unprocessable Entity",
                     "validation_messages" => $this->inputFilter->getMessages(),
-                ],
+                ]),
                 422
             );
-
         }
         $data = $this->inputFilter->getValues();
 
+        $this->em->getConnection()->beginTransaction();
         try {
-            # NÃO ESQUECER DE POR UMA TRANSAÇÃO
             $entity = new $this->entity();
 
             $payer = $this->em->getReference(User::class, $data['payer']);
@@ -50,7 +49,7 @@ class TransactionService
                'payer' => $payer,
                'payee' => $payee,
                'amount' => $amount,
-               'description' => $data['description']
+               'description' => $data['description'] ?? ''
             ];
 
             $classMethods = new ClassMethodsHydrator();
@@ -58,10 +57,22 @@ class TransactionService
 
             $this->em->persist($entity);
             $this->em->flush();
+            $this->em->getConnection()->commit();
 
-            return new JsonResponse($entity->toArray(), 201);
+            return $entity->toArray();
         } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage(), 422);
+            $this->em->getConnection()->rollBack();
+            return [$e->getMessage()];
+        }
+    }
+
+    public function getOne(int $id): array
+    {
+        try {
+            $repository = $this->em->getRepository($this->entity);
+            return $repository->getOne($id);
+        } catch (\Exception $e) {
+            throw $e;
         }
     }
 }

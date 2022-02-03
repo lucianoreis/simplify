@@ -4,15 +4,15 @@ namespace Fintech\Simplify\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Laminas\Hydrator\ClassMethodsHydrator;
-use Fintech\Simplify\Repository\TransactionRepository;
+
 /**
  * Mensagens
  *
- * @ORM\Table(name="transaction", indexes={
+ * @ORM\Table(name="transactions", indexes={
  *     @ORM\Index(name="fkey_transaction_payer_idx", columns={"payer_id"}),
  *     @ORM\Index(name="fkey_transaction_payee_idx", columns={"payee_id"})
  * })
- * @ORM\Entity(repositoryClass="TransactionRepository")
+ * @ORM\Entity(repositoryClass="Fintech\Simplify\Repository\TransactionRepository")
  */
 class Transaction
 {
@@ -47,7 +47,7 @@ class Transaction
 
     /**
      * @ORM\Column(name="description", type="string", nullable=true, length=255)
-     * @var string
+     * @var string|null
      */
     private $description;
 
@@ -119,7 +119,7 @@ class Transaction
     }
 
     /**
-     * @param string $description
+     * @param string|null $description
      */
     public function setDescription(string $description): void
     {

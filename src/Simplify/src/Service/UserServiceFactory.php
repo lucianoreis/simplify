@@ -11,7 +11,8 @@ class UserServiceFactory
 {
     public function __invoke(ContainerInterface $container): UserService
     {
-        $em = $container->get(EntityManager::class);
+        $em = $container->get('doctrine.entity_manager.orm_default');
+
         return new UserService($em);
     }
 }

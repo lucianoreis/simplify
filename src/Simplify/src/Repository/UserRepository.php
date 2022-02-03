@@ -28,6 +28,8 @@ class UserRepository extends EntityRepository
     {
         try {
             $entity = $this->findOneBy(['id' => $id]);
+            die(var_dump($entity));
+
             return !empty($entity) ? $entity->toArray() : [];
         } catch (\Exception $e) {
             throw $e;
