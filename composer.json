@@ -44,14 +44,18 @@
     "require": {
         "php": "^7.4 || ~8.0.0 || ~8.1.0",
         "composer/package-versions-deprecated": "^1.10.99",
+        "dasprid/container-interop-doctrine": "^1.1",
         "laminas/laminas-component-installer": "^2.6",
         "laminas/laminas-config-aggregator": "^1.6",
         "laminas/laminas-diactoros": "^2.7",
+        "laminas/laminas-hydrator": "^4.3",
+        "laminas/laminas-inputfilter": "^2.13",
+        "laminas/laminas-servicemanager": "^3.4",
         "laminas/laminas-stdlib": "^3.6",
         "mezzio/mezzio": "^3.7",
+        "mezzio/mezzio-fastroute": "^3.0.3",
         "mezzio/mezzio-helpers": "^5.7",
-        "laminas/laminas-servicemanager": "^3.4",
-        "mezzio/mezzio-fastroute": "^3.0.3"
+        "ramsey/uuid-doctrine": "^1.8"
     },
     "require-dev": {
         "laminas/laminas-development-mode": "^3.3.0",
@@ -62,13 +66,11 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/App/"
+            "Fintech\\Simplify\\": "src/Simplify/src/"
         }
     },
     "autoload-dev": {
-        "psr-4": {
-            "AppTest\\": "test/AppTest/"
-        }
+        "psr-4": {}
     },
     "scripts": {
         "post-create-project-cmd": [
