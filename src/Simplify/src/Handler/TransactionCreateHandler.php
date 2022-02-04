@@ -23,7 +23,8 @@ class TransactionCreateHandler implements RequestHandlerInterface
     {
         $data = $request->getParsedBody();
         $response = $this->service->transfer($data);
+        $status = $response['status'] ?? 201;
 
-        return new JsonResponse($response, 201);
+        return new JsonResponse($response, $status);
     }
 }

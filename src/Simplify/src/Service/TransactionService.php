@@ -4,8 +4,7 @@ namespace Fintech\Simplify\Service;
 
 use Doctrine\ORM\EntityManager;
 use Fintech\Simplify\Entity\Transaction;
-use Fintech\Simplify\Entity\User;
-use Laminas\Diactoros\Response\JsonResponse;
+use Fintech\Simplify\Exception\ValidatorErrorExeption;
 use Laminas\Hydrator\ClassMethodsHydrator;
 use Laminas\InputFilter\InputFilterInterface;
 
@@ -19,21 +18,18 @@ class TransactionService
     {
         $this->em = $em;
         $this->inputFilter = $inputFilter;
+
     }
 
     public function transfer(array $parsedBody)
     {
         $this->inputFilter->setData($parsedBody);
         if (!$this->inputFilter->isValid()) {
-            throw new \JsonException(json_encode(
-                [
-                    "detail" => "Failed Validation",
-                    "status" => 422,
-                    "title" => "Unprocessable Entity",
-                    "validation_messages" => $this->inputFilter->getMessages(),
-                ]),
-                422
-            );
+            foreach ($this->inputFilter->getMessages() as $field => $error) {
+                foreach ($error as $k => $v) {
+                    throw new ValidatorErrorExeption('Unprocessable Entity', 'Failed Validation', "$field - $v", 422);
+                }
+            }
         }
         $data = $this->inputFilter->getValues();
 
@@ -41,9 +37,23 @@ class TransactionService
         try {
             $entity = new $this->entity();
 
-            $payer = $this->em->getReference(User::class, $data['payer']);
-            $payee = $this->em->getReference(User::class, $data['payee']);
+            $payer = $this->em
+                ->getRepository('Fintech\Simplify\Entity\User')
+                ->find($data['payer']);
+
+            $payee = $this->em
+                ->getRepository('Fintech\Simplify\Entity\User')
+                ->find($data['payee']);
+
             $amount = $data['amount'];
+
+            if ($payer->getProvider()) {
+                throw new ValidatorErrorExeption('Unprocessable Entity', 'Suppliers do not make transfers', 'This operation can only be done between users.', 403);
+            }
+
+            if ($payer->getBalance() < $amount) {
+                throw new ValidatorErrorExeption('Unprocessable Entity', 'Insufficient funds', 'Balance must be greater than or equal to the transfer amount.', 403);
+            }
 
             $row = [
                'payer' => $payer,
@@ -56,13 +66,24 @@ class TransactionService
             $classMethods->hydrate($row, $entity);
 
             $this->em->persist($entity);
+
+            $payerFutureBalance = $payer->getBalance() - $amount;
+            $payeeFutureBalance = $payer->getBalance() + $amount;
+
+            $payer->setBalance($payerFutureBalance);
+            $payee->setBalance($payeeFutureBalance);
+
+            $this->em->persist($payer);
+            $this->em->persist($payee);
+
             $this->em->flush();
+
             $this->em->getConnection()->commit();
 
             return $entity->toArray();
         } catch (\Exception $e) {
             $this->em->getConnection()->rollBack();
-            return [$e->getMessage()];
+            return $e->toArray();
         }
     }
 
