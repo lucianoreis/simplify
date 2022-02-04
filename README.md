@@ -1,16 +1,22 @@
 # Simplify Pagamentos
 
-## Aqui vão instruções de uso
 
-This section applies only if you cloned this repo with `git clone`, not when you
-installed mezzio with `composer create-project ...`.
-
-If you want to run tests against the installer, you need to clone this repo and
-setup all dependencies with composer.  Make sure you **prevent composer running
-scripts** with `--no-scripts`, otherwise it will remove the installer and all
-tests.
+### Instalando o projeto
+```bash
+$ git clone git@github.com:lucianoreis/simplify.git
+```
+```bash
+$ composer install
+```
+### Gerar tabelas no banco de dados
+Crie um banco de dados e configure os dados de conexão em `config/autload/doctrine.local.php` depois execute o comando a baixo para gerar as telas.
 
 ```bash
-$ composer update --no-scripts
-$ composer test
+php vendor/bin/doctrine orm:schema-tool:update --force`.
+```
+
+### Criar usuários
+
+```bash
+$ php new_user.php Luciano 11111111 luciano@teste.com 123 false 500.60
 ```

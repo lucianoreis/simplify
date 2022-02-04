@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Fintech\Simplify\Middleware\AuthorizationMiddleware;
 use Laminas\Stratigility\Middleware\ErrorHandler;
 use Mezzio\Application;
 use Mezzio\Handler\NotFoundHandler;
@@ -71,6 +72,7 @@ return function (Application $app, MiddlewareFactory $factory, ContainerInterfac
     // - etc.
 
     // Register the dispatch middleware in the middleware pipeline
+    $app->pipe(AuthorizationMiddleware::class);
     $app->pipe(BodyParamsMiddleware::class);
     $app->pipe(DispatchMiddleware::class);
 

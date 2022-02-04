@@ -42,6 +42,7 @@ class ConfigProvider
             'invokables' => [
             ],
             'factories'  => [
+                Middleware\AuthorizationMiddleware::class => Middleware\AuthorizationMiddlewareFactory::class,
                 Handler\TransactionCreateHandler::class => Handler\TransactionCreateHandlerFactory::class,
                 Service\TransactionService::class => Service\TransactionServiceFactory::class,
                 Service\UserService::class => Service\UserServiceFactory::class

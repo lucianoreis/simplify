@@ -122,7 +122,7 @@ class User
      */
     public function getPassword(): string
     {
-        return crypt($this->password);
+        return $this->password;
     }
 
     /**
@@ -130,7 +130,7 @@ class User
      */
     public function setPassword(string $password): void
     {
-        $this->password = $password;
+        $this->password = crypt($password);
     }
 
     /**

@@ -68,7 +68,7 @@ class TransactionService
             $this->em->persist($entity);
 
             $payerFutureBalance = $payer->getBalance() - $amount;
-            $payeeFutureBalance = $payer->getBalance() + $amount;
+            $payeeFutureBalance = $payee->getBalance() + $amount;
 
             $payer->setBalance($payerFutureBalance);
             $payee->setBalance($payeeFutureBalance);
@@ -80,7 +80,11 @@ class TransactionService
 
             $this->em->getConnection()->commit();
 
-            return $entity->toArray();
+            $response = $entity->toArray();
+            $response['payer'] = $payer->getId();
+            $response['payee'] = $payee->getId();
+
+            return $response;
         } catch (\Exception $e) {
             $this->em->getConnection()->rollBack();
             return $e->toArray();
